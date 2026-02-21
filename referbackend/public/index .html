@@ -27,6 +27,8 @@ input,select{
   border:1px solid #ddd;
   border-radius:6px;
   margin-bottom:12px;
+  font-family:inherit;
+  font-size:14px;
 }
 
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
@@ -51,6 +53,7 @@ button.submit-btn{
   font-weight:700;
   cursor:pointer;
   font-size:15px;
+  font-family:inherit;
 }
 button.submit-btn:disabled{
   background:#93b4f5;
@@ -72,7 +75,7 @@ button.submit-btn:disabled{
   border:1px solid #bbf7d0;
   border-radius:8px;
   margin-bottom:12px;
-  line-height:1.7;
+  line-height:1.8;
 }
 .error-card{
   padding:12px;
@@ -81,15 +84,6 @@ button.submit-btn:disabled{
   border-radius:8px;
   color:#dc2626;
   line-height:1.7;
-}
-.mock-banner{
-  background:#fefce8;
-  border:1px solid #fde047;
-  border-radius:6px;
-  padding:8px 12px;
-  font-size:12px;
-  margin-bottom:12px;
-  color:#854d0e;
 }
 </style>
 </head>
@@ -100,11 +94,7 @@ button.submit-btn:disabled{
   <h1>Jeevan Setu</h1>
   <p class="sub">AI Powered Smart Referral</p>
 
-  <div class="mock-banner" id="mockBanner">
-    ⚠️ Running in <strong>MOCK MODE</strong> — no real API call. Set <code>MOCK = false</code> when your backend is ready.
-  </div>
-
-  <!-- onsubmit="return false" ensures NO page reload ever -->
+  <!-- onsubmit="return false" prevents ANY page reload -->
   <form id="form" onsubmit="return false;">
 
     <div class="section">
@@ -156,7 +146,7 @@ button.submit-btn:disabled{
       </div>
     </div>
 
-    <!-- onclick instead of submit event — 100% safe from page reload -->
+    <!-- type="button" means this will NEVER submit the form -->
     <button type="button" class="submit-btn" id="submitBtn" onclick="handleSubmit()">
       Submit Referral
     </button>
@@ -169,16 +159,12 @@ button.submit-btn:disabled{
 
 <script>
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  TOGGLE THIS when your backend is running
-const MOCK = false;
-const API  = "http://localhost:8000";
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// ✅ Change this to match your server port
+const API = "http://localhost:8000";
 
-if (!MOCK) document.getElementById('mockBanner').style.display = 'none';
+const sel = {};
 
 // Chip selection
-const sel = {};
 document.querySelectorAll('.chips').forEach(group => {
   group.querySelectorAll('.chip').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -213,31 +199,18 @@ async function handleSubmit() {
 
   // Lock button + show loading
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting...';
-  showResp('<p style="color:#555;text-align:center;padding:8px 0">⏳ Finding best hospital match...</p>');
+  submitBtn.textContent = 'Finding best hospital...';
+  showResp('<p style="color:#555;text-align:center;padding:12px 0">⏳ Analyzing patient data...</p>');
 
   try {
-    let data;
+    const res = await fetch(`${API}/api/referral`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
 
-    if (MOCK) {
-      // Simulated 1.5s delay + fake response
-      await new Promise(r => setTimeout(r, 1500));
-      data = {
-        hospital:         "AIIMS Delhi",
-        priority:         "High",
-        distance_km:      12,
-        ai_reason:        "Patient requires specialized cardiology care. AIIMS Delhi has a dedicated cardiac unit with 24/7 emergency services and is the best equipped facility for this case in the region.",
-        schemes_eligible: ["Ayushman Bharat", "CGHS", "State Health Mission"]
-      };
-    } else {
-      const res = await fetch(`${API}/api/referral`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload)
-      });
-      data = await res.json();
-      if (!res.ok) throw new Error(data.error || `Server error (${res.status})`);
-    }
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `Server error (${res.status})`);
 
     showResp(`
       <h2>🏥 Best Hospital Recommendation</h2>
@@ -245,7 +218,9 @@ async function handleSubmit() {
       <div class="hospital-card">
         <strong style="font-size:16px">${data.hospital}</strong><br>
         Priority: <strong>${data.priority}</strong><br>
-        Distance: <strong>${data.distance_km} km</strong>
+        Distance: <strong>${data.distance_km} km</strong><br>
+        Specialty: <strong>${data.specialty || 'N/A'}</strong><br>
+        Beds Available: <strong>${data.beds_available || 'N/A'}</strong>
       </div>
 
       <h3>🤖 AI Reason</h3>
@@ -259,8 +234,8 @@ async function handleSubmit() {
     showResp(`
       <div class="error-card">
         <strong>❌ Error:</strong> ${err.message}<br><br>
-        <small>Is your backend running at <code>${API}</code>?<br>
-        Open DevTools → Console for full details.</small>
+        <small>Make sure your backend is running at <code>${API}</code><br>
+        and you are visiting <code>http://localhost:8000</code> in the browser.</small>
       </div>
     `);
   } finally {
