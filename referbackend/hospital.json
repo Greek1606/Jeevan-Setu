@@ -1,0 +1,122 @@
+[
+  {
+    "id": "1",
+    "name": "AIIMS Delhi",
+    "address": "Ansari Nagar East, New Delhi, Delhi 110029",
+    "phone": "+91-11-26588500",
+    "lat": 28.5672,
+    "lng": 77.21,
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Emergency",
+      "General Medicine"
+    ],
+    "beds_available": 25,
+    "insurance_accepted": [
+      "Ayushman Bharat",
+      "CGHS",
+      "ESI"
+    ],
+    "rating": 4.8
+  },
+  {
+    "id": "2",
+    "name": "Safdarjung Hospital",
+    "address": "Ansari Nagar West, New Delhi, Delhi 110029",
+    "phone": "+91-11-26707444",
+    "lat": 28.5686,
+    "lng": 77.204,
+    "specialties": [
+      "General Medicine",
+      "Orthopedics",
+      "Pediatrics",
+      "Emergency"
+    ],
+    "beds_available": 18,
+    "insurance_accepted": [
+      "Ayushman Bharat",
+      "CGHS"
+    ],
+    "rating": 4.2
+  },
+  {
+    "id": "3",
+    "name": "Apollo Hospital Gurugram",
+    "address": "Sector 26, Gurugram, Haryana 122002",
+    "phone": "+91-124-4285678",
+    "lat": 28.4595,
+    "lng": 77.0469,
+    "specialties": [
+      "Cardiology",
+      "Oncology",
+      "Neurology",
+      "Orthopedics"
+    ],
+    "beds_available": 30,
+    "insurance_accepted": [
+      "Ayushman Bharat",
+      "CGHS",
+      "Star Health",
+      "HDFC Ergo"
+    ],
+    "rating": 4.7
+  },
+  {
+    "id": "4",
+    "name": "Medanta Hospital Gurugram",
+    "address": "CH Baktawar Singh Rd, Gurugram, Haryana 122001",
+    "phone": "+91-124-4141414",
+    "lat": 28.4486,
+    "lng": 77.0211,
+    "specialties": [
+      "Cardiology",
+      "Neurology",
+      "Gastroenterology",
+      "Emergency"
+    ],
+    "beds_available": 22,
+    "insurance_accepted": [
+      "Ayushman Bharat",
+      "CGHS",
+      "Max Bupa"
+    ],
+    "rating": 4.6
+  },
+  {
+    "id": "5",
+    "name": "SMS Hospital Jaipur",
+    "address": "JLN Marg, Jaipur, Rajasthan 302004",
+    "phone": "+91-141-2518888",
+    "lat": 26.9124,
+    "lng": 75.815,
+    "specialties": [
+      "General Medicine",
+      "Maternity",
+      "Pediatrics",
+      "Orthopedics"
+    ],
+    "beds_available": 12,
+    "insurance_accepted": [
+      "Ayushman Bharat",
+      "ESI"
+    ],
+    "rating": 3.9
+  },
+  {
+    "id": "6",
+    "name": "Rural Primary Health Centre",
+    "address": "Palwal District, Haryana 121102",
+    "phone": "+91-1275-234567",
+    "lat": 28.1461,
+    "lng": 77.3261,
+    "specialties": [
+      "General Medicine"
+    ],
+    "beds_available": 5,
+    "insurance_accepted": [
+      "Ayushman Bharat"
+    ],
+    "rating": 3.2
+  }
+]
