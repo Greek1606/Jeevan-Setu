@@ -5,17 +5,18 @@
 require("dotenv").config();
 const express           = require("express");
 const cors              = require("cors");
-const { loadHospitals } = require("./utils/fileStore");
+
+const { loadHospitals } = require("./utils/filestore");
 
 const app = express();
-
+app.use(cors({ origin: "*" }));
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
 // Routes
-app.use("/api/referral", require("./routes/refer"));
-app.use("/hospitals",    require("./routes/hospitals")); // includes /hospitals/cities
+app.use("/api/referral", require("./routes/Refer"));
+app.use("/hospitals",    require("./routes/hospital_route")); // includes /hospitals/cities
 
 // Health check
 app.get("/", (req, res) => {

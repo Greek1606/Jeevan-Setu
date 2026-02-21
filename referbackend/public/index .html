@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeevan Setu · Patient Referral</title>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#f5f4f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:32px 16px}
+.wrap{max-width:520px;margin:auto}
+h1{font-size:22px;margin-bottom:6px}
+.sub{color:#666;margin-bottom:20px}
+
+.section{
+  background:#fff;
+  padding:18px;
+  border-radius:8px;
+  border:1px solid #e0ddd8;
+  margin-bottom:12px;
+}
+
+label{font-size:12px;font-weight:700;display:block;margin-bottom:4px}
+input,select{
+  width:100%;
+  padding:9px;
+  border:1px solid #ddd;
+  border-radius:6px;
+  margin-bottom:12px;
+}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{
+  padding:6px 12px;
+  border:1px solid #ddd;
+  border-radius:100px;
+  cursor:pointer;
+  background:#f5f5f5;
+  font-size:14px;
+  font-family:inherit;
+}
+.chip.on{background:#2563eb;color:white;border-color:#2563eb}
+
+button.submit-btn{
+  width:100%;
+  padding:12px;
+  background:#2563eb;
+  color:white;
+  border:none;
+  border-radius:6px;
+  font-weight:700;
+  cursor:pointer;
+  font-size:15px;
+}
+button.submit-btn:disabled{
+  background:#93b4f5;
+  cursor:not-allowed;
+}
+
+.response{
+  margin-top:20px;
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:18px;
+}
+.response h2{margin-bottom:12px;font-size:17px;}
+.response h3{margin:14px 0 6px;font-size:14px;}
+.hospital-card{
+  padding:12px;
+  background:#f0fdf4;
+  border:1px solid #bbf7d0;
+  border-radius:8px;
+  margin-bottom:12px;
+  line-height:1.7;
+}
+.error-card{
+  padding:12px;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  border-radius:8px;
+  color:#dc2626;
+  line-height:1.7;
+}
+.mock-banner{
+  background:#fefce8;
+  border:1px solid #fde047;
+  border-radius:6px;
+  padding:8px 12px;
+  font-size:12px;
+  margin-bottom:12px;
+  color:#854d0e;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <h1>Jeevan Setu</h1>
+  <p class="sub">AI Powered Smart Referral</p>
+
+  <div class="mock-banner" id="mockBanner">
+    ⚠️ Running in <strong>MOCK MODE</strong> — no real API call. Set <code>MOCK = false</code> when your backend is ready.
+  </div>
+
+  <!-- onsubmit="return false" ensures NO page reload ever -->
+  <form id="form" onsubmit="return false;">
+
+    <div class="section">
+      <label>Full Name</label>
+      <input id="name" placeholder="Enter patient name">
+
+      <label>Age</label>
+      <input id="age" type="number" placeholder="Age in years">
+
+      <label>Current Hospital</label>
+      <input id="hospital" placeholder="Enter current hospital name">
+
+      <label>Gender</label>
+      <div class="chips" id="genderGroup">
+        <button type="button" class="chip" data-val="male">Male</button>
+        <button type="button" class="chip" data-val="female">Female</button>
+        <button type="button" class="chip" data-val="other">Other</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>Disease</label>
+      <select id="disease">
+        <option value="">Select</option>
+        <option value="cardiology">Cardiology</option>
+        <option value="neurology">Neurology</option>
+        <option value="oncology">Oncology</option>
+        <option value="orthopedics">Orthopedics</option>
+        <option value="other">Other</option>
+      </select>
+
+      <input id="otherDisease" placeholder="Specify if other">
+    </div>
+
+    <div class="section">
+      <label>City</label>
+      <input id="city" placeholder="Enter city">
+
+      <label>BPL Status</label>
+      <div class="chips" id="bplGroup">
+        <button type="button" class="chip" data-val="below">Below BPL</button>
+        <button type="button" class="chip" data-val="above">Above BPL</button>
+      </div>
+
+      <label>Disabled</label>
+      <div class="chips" id="disabledGroup">
+        <button type="button" class="chip" data-val="yes">Yes</button>
+        <button type="button" class="chip" data-val="no">No</button>
+      </div>
+    </div>
+
+    <!-- onclick instead of submit event — 100% safe from page reload -->
+    <button type="button" class="submit-btn" id="submitBtn" onclick="handleSubmit()">
+      Submit Referral
+    </button>
+
+  </form>
+
+  <div class="response" id="resp" style="display:none;"></div>
+
+</div>
+
+<script>
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  TOGGLE THIS when your backend is running
+const MOCK = false;
+const API  = "http://localhost:8000";
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+if (!MOCK) document.getElementById('mockBanner').style.display = 'none';
+
+// Chip selection
+const sel = {};
+document.querySelectorAll('.chips').forEach(group => {
+  group.querySelectorAll('.chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      group.querySelectorAll('.chip').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      sel[group.id] = btn.dataset.val;
+    });
+  });
+});
+
+function showResp(html) {
+  const el = document.getElementById('resp');
+  el.style.display = 'block';
+  el.innerHTML = html;
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+async function handleSubmit() {
+  const submitBtn = document.getElementById('submitBtn');
+
+  const payload = {
+    name:         document.getElementById('name').value,
+    age:          parseInt(document.getElementById('age').value),
+    gender:       sel.genderGroup,
+    hospital:     document.getElementById('hospital').value,
+    disease:      document.getElementById('disease').value,
+    otherDisease: document.getElementById('otherDisease').value,
+    bplStatus:    sel.bplGroup,
+    disabled:     sel.disabledGroup,
+    address:      document.getElementById('city').value
+  };
+
+  // Lock button + show loading
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting...';
+  showResp('<p style="color:#555;text-align:center;padding:8px 0">⏳ Finding best hospital match...</p>');
+
+  try {
+    let data;
+
+    if (MOCK) {
+      // Simulated 1.5s delay + fake response
+      await new Promise(r => setTimeout(r, 1500));
+      data = {
+        hospital:         "AIIMS Delhi",
+        priority:         "High",
+        distance_km:      12,
+        ai_reason:        "Patient requires specialized cardiology care. AIIMS Delhi has a dedicated cardiac unit with 24/7 emergency services and is the best equipped facility for this case in the region.",
+        schemes_eligible: ["Ayushman Bharat", "CGHS", "State Health Mission"]
+      };
+    } else {
+      const res = await fetch(`${API}/api/referral`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload)
+      });
+      data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Server error (${res.status})`);
+    }
+
+    showResp(`
+      <h2>🏥 Best Hospital Recommendation</h2>
+
+      <div class="hospital-card">
+        <strong style="font-size:16px">${data.hospital}</strong><br>
+        Priority: <strong>${data.priority}</strong><br>
+        Distance: <strong>${data.distance_km} km</strong>
+      </div>
+
+      <h3>🤖 AI Reason</h3>
+      <p style="line-height:1.6;color:#333">${data.ai_reason}</p>
+
+      <h3>💊 Eligible Schemes</h3>
+      <p style="color:#333">${data.schemes_eligible?.join(", ") || "None"}</p>
+    `);
+
+  } catch (err) {
+    showResp(`
+      <div class="error-card">
+        <strong>❌ Error:</strong> ${err.message}<br><br>
+        <small>Is your backend running at <code>${API}</code>?<br>
+        Open DevTools → Console for full details.</small>
+      </div>
+    `);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Referral';
+  }
+}
+
+</script>
+</body>
+</html>
