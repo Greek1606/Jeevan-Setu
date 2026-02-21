@@ -51,3 +51,24 @@ Many rural patients face challenges in accessing appropriate healthcare due to:
    - Resource availability
 
 This ensures intelligent, data-driven referrals rather than random hospital selection.
+
+## Emergency Case
+
+The **Emergency Routing Module** is designed for time-critical medical situations.
+
+In emergency scenarios, decision speed is more important than deep analysis. The system prioritizes:
+
+- Nearest capable hospital
+- Real-time bed availability
+- Emergency facility readiness
+- Travel time estimation
+
+### Emergency Flow
+
+1. Patient selects emergency mode.
+2. Basic symptoms are entered.
+3. System categorizes urgency level.
+4. Nearest suitable hospital is instantly recommended.
+5. Auto-notification can be sent to the hospital.
+
+This module reduces response time and improves survival probability in critical cases. The emergency sytem avoids LLM usage and rather uses basic analysis to keep the process quick and suited for the low internet speeds of Rural Areas
