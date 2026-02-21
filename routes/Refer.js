@@ -7,7 +7,7 @@ const express                  = require("express");
 const router                   = express.Router();
 const { validateReferRequest } = require("../middleware/validate");
 const { getAIRecommendation }  = require("../services/aiService");
-const { loadHospitals, saveReferral } = require("../utils/fileStore");
+const { loadHospitals, saveReferral } = require("../utils/filestore");
 const { getDistanceKm }        = require("../utils/distance");
 
 // Generate a simple referral ID
