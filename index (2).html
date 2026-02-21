@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Referral</title>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f5f4f0;
+            --white: #ffffff;
+            --ink: #1a1a1a;
+            --muted: #888;
+            --line: #e0ddd8;
+            --accent: #2563eb;
+            --accent-bg: #eff6ff;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --error: #dc2626;
+            --radius: 8px;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 32px 16px 64px;
+        }
+
+        .wrap {
+            max-width: 520px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .sub {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* API pill */
+        #apiPill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+
+        #apiPill .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--line);
+            transition: background 0.3s;
+        }
+
+        #apiPill.on .dot {
+            background: var(--success);
+        }
+
+        #apiPill.on span {
+            color: var(--success);
+        }
+
+        #apiPill.off .dot {
+            background: var(--error);
+        }
+
+        #apiPill.off span {
+            color: var(--error);
+        }
+
+        /* Progress */
+        .progress {
+            height: 2px;
+            background: var(--line);
+            border-radius: 2px;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.35s ease;
+        }
+
+        /* Section */
+        .section {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 10px;
+        }
+
+        .section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+
+        /* Fields */
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 5px;
+            letter-spacing: 0.02em;
+        }
+
+        .field label .req {
+            color: var(--accent);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--bg);
+            color: var(--ink);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            outline: none;
+            transition: border-color 0.15s;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--accent);
+            background: var(--white);
+        }
+
+        input::placeholder {
+            color: #bbb;
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23aaa'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #fff;
+        }
+
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 400px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Chips */
+        .chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid var(--line);
+            border-radius: 100px;
+            background: var(--bg);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .chip.on {
+            background: var(--accent-bg);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        /* Geo */
+        .geo-btn {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--bg);
+            color: var(--muted);
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .geo-btn:hover {
+            border-color: var(--accent);
+            color: var(--ink);
+        }
+
+        .geo-btn.on {
+            background: var(--success-bg);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .geo-result {
+            font-size: 11px;
+            color: var(--success);
+            margin-top: 5px;
+            display: none;
+        }
+
+        .geo-result.show {
+            display: block;
+        }
+
+        /* Submit */
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+            letter-spacing: 0.01em;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #1d4ed8;
+        }
+
+        .submit-btn:active:not(:disabled) {
+            transform: scale(0.99);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        /* Response */
+        .response {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .response.show {
+            display: block;
+        }
+
+        .response.ok {
+            border-color: #86efac;
+        }
+
+        .response.err {
+            border-color: #fca5a5;
+        }
+
+        .response-head {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .response.ok .response-head {
+            color: var(--success);
+        }
+
+        .response.err .response-head {
+            color: var(--error);
+        }
+
+        .ref-id {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent);
+            background: var(--accent-bg);
+            padding: 6px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 12px;
+            cursor: pointer;
+            user-select: all;
+            title: "Click to copy";
+        }
+
+        .ref-id:active {
+            opacity: 0.7;
+        }
+
+        .resp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 400px) {
+            .resp-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .resp-item {
+            background: var(--bg);
+            border-radius: 6px;
+            padding: 8px 10px;
+        }
+
+        .resp-item .k {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .resp-item .v {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .priority-HIGH {
+            color: var(--error);
+        }
+
+        .priority-MEDIUM {
+            color: #d97706;
+        }
+
+        .priority-NORMAL {
+            color: var(--success);
+        }
+
+        .schemes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .scheme-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--accent-bg);
+            color: var(--accent);
+        }
+
+        .copy-hint {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+
+        <header>
+            <div class="brand">Referral System</div>
+            <h1>Patient Referral</h1>
+            <p class="sub">Fill in the details to submit a referral.</p>
+            <div id="apiPill">
+                <span class="dot"></span>
+                <span id="apiTxt">Connecting…</span>
+            </div>
+        </header>
+
+        <div class="progress">
+            <div class="progress-fill" id="prog"></div>
+        </div>
+
+        <form id="form" novalidate>
+
+            <!-- Personal -->
+            <div class="section">
+                <div class="section-label">Personal</div>
+
+                <div class="field">
+                    <label>Name <span class="req">*</span></label>
+                    <input type="text" id="name" placeholder="Full name">
+                </div>
+
+                <div class="grid-2">
+                    <div class="field">
+                        <label>Age <span class="req">*</span></label>
+                        <input type="number" id="age" placeholder="Years" min="0" max="120">
+                    </div>
+                    <div class="field">
+                        <label>Hospital <span class="req">*</span></label>
+                        <input type="text" id="hospital" placeholder="Current hospital">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Gender <span class="req">*</span></label>
+                    <div class="chips" id="genderGroup">
+                        <button type="button" class="chip" data-val="male">Male</button>
+                        <button type="button" class="chip" data-val="female">Female</button>
+                        <button type="button" class="chip" data-val="other">Other</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical -->
+            <div class="section">
+                <div class="section-label">Medical</div>
+
+                <div class="field">
+                    <label>Referral Condition <span class="req">*</span></label>
+                    <select id="disease">
+                        <option value="">Select condition…</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="oncology">Oncology</option>
+                        <option value="orthopedics">Orthopedics</option>
+                        <option value="gastroenterology">Gastroenterology</option>
+                        <option value="pulmonology">Pulmonology</option>
+                        <option value="nephrology">Nephrology</option>
+                        <option value="endocrinology">Endocrinology</option>
+                        <option value="psychiatry">Psychiatry</option>
+                        <option value="pediatrics">Pediatrics</option>
+                        <option value="gynecology">Gynecology</option>
+                        <option value="dermatology">Dermatology</option>
+                        <option value="ophthalmology">Ophthalmology</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="field" id="otherField" style="display:none;">
+                    <label>Specify <span class="req">*</span></label>
+                    <input type="text" id="otherDisease" placeholder="Describe condition…">
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="section">
+                <div class="section-label">Location</div>
+
+                <div class="field">
+                    <label>GPS</label>
+                    <button type="button" class="geo-btn" id="geoBtn" onclick="getGeo()">
+                        <span id="geoIcon">◎</span>
+                        <span id="geoTxt">Detect my location</span>
+                    </button>
+                    <div class="geo-result" id="geoResult"></div>
+                </div>
+
+                <div class="field">
+                    <label>Address (optional)</label>
+                    <input type="text" id="address" placeholder="Area or address">
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="section">
+                <div class="section-label">Status</div>
+
+                <div class="field">
+                    <label>Income Level <span class="req">*</span></label>
+                    <div class="chips" id="bplGroup">
+                        <button type="button" class="chip" data-val="below">Below BPL</button>
+                        <button type="button" class="chip" data-val="above">Above BPL</button>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Disability <span class="req">*</span></label>
+                    <div class="chips" id="disabledGroup">
+                        <button type="button" class="chip" data-val="yes">Disabled</button>
+                        <button type="button" class="chip" data-val="no">Not Disabled</button>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">Submit Referral</button>
+        </form>
+
+        <!-- Response -->
+        <div class="response" id="resp">
+            <div class="response-head" id="respHead"></div>
+            <div class="copy-hint" id="copyHint" style="display:none;">Tap ID to copy</div>
+            <div class="ref-id" id="refId" style="display:none;" onclick="copyId()"></div>
+            <div class="resp-grid" id="respGrid"></div>
+            <div id="schemesWrap" style="display:none;">
+                <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:5px;">
+                    Eligible Schemes</div>
+                <div class="schemes" id="schemesList"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const API = "http://localhost:8000";
+        const sel = {};
+        let gps = null;
+        let lastId = null;
+
+        // API health
+        async function ping() {
+            const pill = document.getElementById('apiPill');
+            const txt = document.getElementById('apiTxt');
+            try {
+                const r = await fetch(`${API}/health`, { signal: AbortSignal.timeout(3000) });
+                if (r.ok) { pill.className = 'on'; txt.textContent = 'API connected'; }
+                else throw 0;
+            } catch {
+                pill.className = 'off'; txt.textContent = 'API offline';
+            }
+        }
+        ping(); setInterval(ping, 20000);
+
+        // Chips
+        document.querySelectorAll('.chips').forEach(group => {
+            group.querySelectorAll('.chip').forEach(btn => {
+                btn.onclick = () => {
+                    group.querySelectorAll('.chip').forEach(b => b.classList.remove('on'));
+                    btn.classList.add('on');
+                    sel[group.id] = btn.dataset.val;
+                    progress();
+                };
+            });
+        });
+
+        // Disease
+        document.getElementById('disease').onchange = function () {
+            document.getElementById('otherField').style.display = this.value === 'other' ? 'block' : 'none';
+            progress();
+        };
+
+        // Progress
+        const rf = ['name', 'age', 'hospital', 'disease'];
+        const rg = ['genderGroup', 'bplGroup', 'disabledGroup'];
+
+        function progress() {
+            let n = 0;
+            rf.forEach(id => { if (document.getElementById(id).value.trim()) n++; });
+            rg.forEach(id => { if (sel[id]) n++; });
+            document.getElementById('prog').style.width = (n / (rf.length + rg.length) * 100) + '%';
+        }
+
+        rf.forEach(id => document.getElementById(id).addEventListener('input', progress));
+
+        // Geo
+        function getGeo() {
+            const btn = document.getElementById('geoBtn');
+            const icon = document.getElementById('geoIcon');
+            const txt = document.getElementById('geoTxt');
+            if (!navigator.geolocation) { txt.textContent = 'Not supported'; return; }
+
+            icon.textContent = '…'; txt.textContent = 'Locating…';
+
+            navigator.geolocation.getCurrentPosition(
+                p => {
+                    gps = { lat: p.coords.latitude, lng: p.coords.longitude };
+                    btn.classList.add('on');
+                    icon.textContent = '✓'; txt.textContent = 'Location found';
+                    const r = document.getElementById('geoResult');
+                    r.textContent = `${gps.lat.toFixed(4)}, ${gps.lng.toFixed(4)}`;
+                    r.classList.add('show');
+                },
+                e => {
+                    icon.textContent = '✕';
+                    txt.textContent = ['', 'Permission denied', 'Unavailable', 'Timeout'][e.code] || 'Failed';
+                },
+                { timeout: 10000, enableHighAccuracy: true }
+            );
+        }
+
+        // Submit
+        document.getElementById('form').onsubmit = async function (e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const age = parseInt(document.getElementById('age').value);
+            const hospital = document.getElementById('hospital').value.trim();
+            const disease = document.getElementById('disease').value;
+
+            if (!name || !age || !hospital || !disease || !sel.genderGroup || !sel.bplGroup || !sel.disabledGroup) {
+                showErr('Please complete all required fields.'); return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.textContent = 'Submitting…';
+
+            try {
+                const res = await fetch(`${API}/api/referral`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name, age,
+                        gender: sel.genderGroup,
+                        hospital, disease,
+                        otherDisease: disease === 'other' ? document.getElementById('otherDisease').value.trim() : null,
+                        bplStatus: sel.bplGroup,
+                        disabled: sel.disabledGroup,
+                        location: gps,
+                        address: document.getElementById('address').value.trim(),
+                        timestamp: new Date().toISOString()
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail?.[0]?.msg || data.detail || 'Error');
+                showOk(data);
+                resetForm();
+            } catch (err) {
+                showErr(err.message || 'Could not reach API.');
+            } finally {
+                btn.disabled = false; btn.textContent = 'Submit Referral';
+            }
+        };
+
+        function showOk(d) {
+            const box = document.getElementById('resp');
+            box.className = 'response show ok';
+            document.getElementById('respHead').textContent = 'Referral submitted';
+            document.getElementById('copyHint').style.display = 'block';
+            const rid = document.getElementById('refId');
+            rid.style.display = 'inline-block';
+            rid.textContent = d.referral_id;
+            lastId = d.referral_id;
+
+            const pc = `priority-${d.priority}`;
+            document.getElementById('respGrid').innerHTML = `
+      <div class="resp-item"><div class="k">Patient</div><div class="v">${x(d.patient_name)}</div></div>
+      <div class="resp-item"><div class="k">Condition</div><div class="v">${x(d.disease_label)}</div></div>
+      <div class="resp-item"><div class="k">Priority</div><div class="v ${pc}">${d.priority}</div></div>
+      <div class="resp-item"><div class="k">Time</div><div class="v">${new Date(d.received_at).toLocaleTimeString()}</div></div>
+    `;
+
+            const sw = document.getElementById('schemesWrap');
+            const sl = document.getElementById('schemesList');
+            sl.innerHTML = d.schemes_eligible.map(s => `<span class="scheme-tag">${x(s)}</span>`).join('');
+            sw.style.display = 'block';
+
+            box.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showErr(msg) {
+            const box = document.getElementById('resp');
+            box.className = 'response show err';
+            document.getElementById('respHead').textContent = msg;
+            document.getElementById('copyHint').style.display = 'none';
+            document.getElementById('refId').style.display = 'none';
+            document.getElementById('respGrid').innerHTML = '';
+            document.getElementById('schemesWrap').style.display = 'none';
+            box.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('form').reset();
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+            Object.keys(sel).forEach(k => delete sel[k]);
+            gps = null;
+            document.getElementById('geoBtn').classList.remove('on');
+            document.getElementById('geoIcon').textContent = '◎';
+            document.getElementById('geoTxt').textContent = 'Detect my location';
+            document.getElementById('geoResult').classList.remove('show');
+            document.getElementById('otherField').style.display = 'none';
+            document.getElementById('prog').style.width = '0%';
+        }
+
+        function copyId() {
+            if (lastId) {
+                navigator.clipboard?.writeText(lastId);
+                const r = document.getElementById('refId');
+                const old = r.textContent;
+                r.textContent = 'Copied!';
+                setTimeout(() => r.textContent = old, 1200);
+            }
+        }
+
+        function x(s) {
+            return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+    </script>
+</body>
+
+</html>
