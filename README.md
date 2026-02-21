@@ -15,3 +15,39 @@ This platform provides two primary modules:
 2. **Smart Referral Engine** – Matches patients with hospitals best suited to their medical needs.
 
 The following sections describe the system architecture, technology stack, workflow, and implementation details.
+
+## Referral Case
+
+The **Referral Module** focuses on providing rural patients with accurate hospital recommendations for non-immediate but critical medical needs.
+
+Many rural patients face challenges in accessing appropriate healthcare due to:
+- Lack of structured medical guidance
+- Information gaps about hospital capabilities
+- Distance constraints
+- Limited availability of specialists
+
+### How It Works
+
+1. The system collects basic patient details:
+   - Age
+   - Gender
+   - Symptoms
+   - Previous reports (if available in PDF Format)
+
+2. The input is processed through a Semi-LLM pipeline to:
+   - Extract medical intent
+   - Identify probable condition category
+   - Determine required specialization
+
+3. The system then matches the patient with hospitals based on:
+   - Specialist availability
+   - Bed capacity
+   - Distance
+   - Hospital capability score
+
+4. A ranked list of hospitals is generated, ensuring:
+   - Medical suitability
+   - Reasonable travel distance
+   - Resource availability
+
+This ensures intelligent, data-driven referrals rather than random hospital selection.
